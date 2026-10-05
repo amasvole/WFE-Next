@@ -1,0 +1,1 @@
+{"name":"wfe-next","version":"0.1.0","private":true,"scripts":{"start":"node src/server.js","test":"node test/kernel.test.js","accept:pong":"node scripts/pong-acceptance.js"},"engines":{"node":">=22"}}
