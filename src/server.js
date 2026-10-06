@@ -2,10 +2,12 @@ const http=require("http"),fs=require("fs"),path=require("path"),{Kernel}=requir
 const root=path.resolve(__dirname,".."),kernel=new Kernel({root,provider:new ClaudeProvider()}),active=new Set(),opened=new Map();
 const send=(r,c,b,t="application/json")=>{r.writeHead(c,{"content-type":t});r.end(t.includes("json")?JSON.stringify(b):b)},body=q=>new Promise((ok,no)=>{let b="";q.on("data",x=>b+=x);q.on("end",()=>{try{ok(b?JSON.parse(b):{})}catch(e){no(e)}})});
 const start=async x=>{active.add(x.projectId);const old=opened.get(x.projectId);if(old){await old.app.stop();opened.delete(x.projectId)}Promise.resolve(kernel.projectWorkspace(x.projectId)?kernel.evolve(x):kernel.start(x)).finally(()=>active.delete(x.projectId))};
-const loadedCode=require('crypto').createHash('sha256').update(['src/server.js','src/kernel.js','src/provider.js','src/browser-runtime.js','src/browser-procedure.js','scripts/browser-executor.js'].map(f=>fs.readFileSync(path.join(root,f))).join('')).digest('hex');
+const {workspaceFiles}=require('./workspace-files');
+const loadedCode=require('crypto').createHash('sha256').update(['src/server.js','src/kernel.js','src/provider.js','src/plan-output.js','src/workspace-files.js','src/browser-runtime.js','src/browser-procedure.js','scripts/browser-executor.js'].map(f=>fs.readFileSync(path.join(root,f))).join('')).digest('hex');
 const srv=http.createServer(async(q,r)=>{try{
 if(q.method==="GET"&&q.url==="/")return send(r,200,fs.readFileSync(path.join(root,"ui/index.html"),"utf8"),"text/html");
-if(q.method==="GET"&&q.url==="/api/state")return send(r,200,{...kernel.state,operator:{pid:process.pid,root,loadedCode,startedAt:new Date(Date.now()-process.uptime()*1000).toISOString()},active:[...active],opened:Object.fromEntries([...opened].map(([k,v])=>[k,{url:v.url,pid:v.pid,port:v.port}]))});
+if(q.method==='GET'&&q.url.startsWith('/api/files/')){const u=new URL(q.url,'http://127.0.0.1');try{return send(r,200,workspaceFiles(kernel,decodeURIComponent(u.pathname.slice(11)),u.searchParams.get('path')||''))}catch(e){return send(r,400,{error:e.message})}}
+if(q.method==="GET"&&q.url==="/api/state"){for(const [id,x]of opened)if(!x.app.alive())opened.delete(id);return send(r,200,{...kernel.state,operator:{pid:process.pid,root,loadedCode,startedAt:new Date(Date.now()-process.uptime()*1000).toISOString()},active:[...active],opened:Object.fromEntries([...opened].map(([k,v])=>[k,{url:v.url,pid:v.pid,port:v.port}]))});}
 if(q.method==="POST"&&q.url==="/api/projects")return send(r,201,kernel.createProject(await body(q)));
 if(q.method==="POST"&&q.url==="/api/plan"){const x=await body(q);return send(r,200,await kernel.plan(x.goal,x.projectId))}
 if(q.method==="POST"&&q.url==="/api/start"){const x=await body(q);if(active.has(x.projectId))return send(r,409,{error:"project active"});await start(x);return send(r,202,{accepted:true})}

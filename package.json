@@ -1,1 +1,15 @@
-{"name":"wfe-next","version":"0.1.0","private":true,"scripts":{"start":"node src/server.js","test":"node test/kernel.test.js","accept:pong":"node scripts/pong-acceptance.js","accept:real":"node scripts/real-generation.js","accept:general":"node scripts/general-app-acceptance.js"},"engines":{"node":">=22"}}
+{
+  "name": "wfe-next",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node test/kernel.test.js && node test/workspace-files.test.js && node test/plan-output.test.js",
+    "accept:pong": "node scripts/pong-acceptance.js",
+    "accept:real": "node scripts/real-generation.js",
+    "accept:general": "node scripts/general-app-acceptance.js"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
