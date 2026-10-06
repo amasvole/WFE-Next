@@ -1,0 +1,25 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "wfe",
+  "version": "0.1.0",
+  "description": "Read the live canonical WFE-Next operator, project, goal, run, step, blocker, and accepted-result status from the local Victus WFE runtime.",
+  "repository": "https://github.com/amasvole/WFE-Next",
+  "keywords": ["wfe", "development", "projects", "runtime", "status"],
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "WFE",
+        "shortDescription": "Live WFE status",
+        "longDescription": "Read-only access to the live canonical WFE-Next status on this computer. Shows current Projects, Goals, prepared Plans, Runs, Steps, blockers and accepted-result identity. This v0 plugin cannot run shell commands, mutate WFE, approve actions, or replace WFEKey.",
+        "developerName": "Pavel Urban",
+        "category": "Developer Tools",
+        "capabilities": ["Read live WFE status"],
+        "defaultPrompt": [
+          "What is WFE doing right now?",
+          "Show me active, ready, and blocked WFE work.",
+          "What is the current state of my WFE projects?"
+        ]
+      }
+    }
+  }
+}

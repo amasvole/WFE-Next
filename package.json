@@ -7,7 +7,11 @@
     "test": "node test/kernel.test.js && node test/workspace-files.test.js && node test/workspace-search.test.js && node test/plan-output.test.js && node test/project-status.test.js",
     "accept:pong": "node scripts/pong-acceptance.js",
     "accept:real": "node scripts/real-generation.js",
-    "accept:general": "node scripts/general-app-acceptance.js"
+    "accept:general": "node scripts/general-app-acceptance.js",
+    "mcp:install": "npm --prefix integrations/wfe-mcp ci --ignore-scripts --no-audit --no-fund",
+    "test:mcp": "npm --prefix integrations/wfe-mcp test",
+    "mcp:start": "npm --prefix integrations/wfe-mcp start",
+    "mcp:smoke": "npm --prefix integrations/wfe-mcp run smoke:live"
   },
   "engines": {
     "node": ">=22"
