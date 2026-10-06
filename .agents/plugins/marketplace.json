@@ -1,0 +1,20 @@
+{
+  "name": "wfe-next-local",
+  "interface": {
+    "displayName": "WFE Next Local"
+  },
+  "plugins": [
+    {
+      "name": "wfe",
+      "source": {
+        "source": "local",
+        "path": "./plugins/wfe"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}
