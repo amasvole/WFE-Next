@@ -16,11 +16,13 @@ const stateHashBefore=hash(new URL('../../../.wfe-next/state.json',import.meta.u
 try{
  await client.connect(new StreamableHTTPClientTransport(new URL(endpoint)));
  const tools=(await client.listTools()).tools;
- assert.deepEqual(tools.map(t=>t.name),catalogue.READ_CAPABILITIES.map(c=>c.name));
+ const productCatalogue=(await import('../../../src/product-capabilities.js')).default;
+ assert.deepEqual(tools.map(t=>t.name),productCatalogue.CONTROL_CAPABILITIES.map(c=>c.name));
  const results={};const latency=[];
  for(const tool of tools){
+  if(tool._meta['wfe/capability'].access==='write'){results[tool.name]={invoked:false,reason:'Read-only smoke; writes verified by product-demo.mjs'};continue;}
   const projectId=Object.keys(stateBefore.projects).find(id=>stateBefore.projects[id].runs.length>0);
-  const args=tool.name==='wfe_run_get'?{projectId,runId:stateBefore.projects[projectId].runs.at(-1).id}:['wfe_project_get','wfe_workbench_get'].includes(tool.name)?{projectId}:{};
+  const args=['wfe_run_get','wfe_work_status','wfe_acceptance_result','wfe_artifact_list','wfe_artifact_preview'].includes(tool.name)?{projectId,runId:stateBefore.projects[projectId].runs.at(-1).id}:['wfe_project_get','wfe_workbench_get','wfe_product_status'].includes(tool.name)?{projectId}:{};
   const t=performance.now(),result=await client.callTool({name:tool.name,arguments:args});
   results[tool.name]={available:result.structuredContent.available,error:result.structuredContent.error?.code??null,ms:Math.round((performance.now()-t)*10)/10};
   assert.equal(result.structuredContent.available,tool._meta['wfe/capability'].availability==='supported',tool.name);

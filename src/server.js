@@ -5,8 +5,9 @@ const start=async x=>{active.add(x.projectId);const old=opened.get(x.projectId);
 const {isDeepStrictEqual}=require('util');
 const {projectStatus,mutationAllowed}=require('./project-status');
 const {workspaceFiles,workspaceSearch}=require('./workspace-files');
-const loadedCode=require('crypto').createHash('sha256').update(['src/server.js','src/project-status.js','src/kernel.js','src/provider.js','src/plan-output.js','src/workspace-files.js','src/browser-runtime.js','src/browser-procedure.js','scripts/browser-executor.js'].map(f=>fs.readFileSync(path.join(root,f))).join('')).digest('hex');
+const loadedCode=require('crypto').createHash('sha256').update(['src/server.js','src/project-status.js','src/kernel.js','src/product-mutation.js','src/product-contract.js','src/product-control-http.js','src/provider.js','src/plan-output.js','src/workspace-files.js','src/browser-runtime.js','src/browser-procedure.js','scripts/browser-executor.js'].map(f=>fs.readFileSync(path.join(root,f))).join('')).digest('hex');
 const srv=http.createServer(async(q,r)=>{try{
+if(await require("./product-control-http").productControlHttp(q,r,kernel))return;
 if(q.method==="GET"&&q.url==="/")return send(r,200,fs.readFileSync(path.join(root,"ui/index.html"),"utf8"),"text/html");
 if(q.method==='GET'&&q.url.startsWith('/api/search/')){const u=new URL(q.url,'http://127.0.0.1');try{return send(r,200,await workspaceSearch(kernel,decodeURIComponent(u.pathname.slice(12)),u.searchParams.get('q')))}catch(e){return send(r,400,{error:e.message})}}
 if(q.method==='GET'&&q.url.startsWith('/api/files/')){const u=new URL(q.url,'http://127.0.0.1');try{return send(r,200,workspaceFiles(kernel,decodeURIComponent(u.pathname.slice(11)),u.searchParams.get('path')||''))}catch(e){return send(r,400,{error:e.message})}}

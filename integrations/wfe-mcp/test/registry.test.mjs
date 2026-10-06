@@ -6,10 +6,11 @@ import {once} from 'node:events';
 import {request} from 'node:http';
 import {Client} from '@modelcontextprotocol/sdk/client/index.js';
 import {StreamableHTTPClientTransport} from '@modelcontextprotocol/sdk/client/streamableHttp.js';
-import {createAdapter,createHttpAdapter,INTEGRATION_CONTRACT,validate} from '../src/adapter.mjs';
+import {createAdapter as createControlAdapter,createHttpAdapter,INTEGRATION_CONTRACT,validate} from '../src/adapter.mjs';
 import catalogue from '../../../src/control-capabilities.js';
 import projection from '../../../src/project-status.js';
 const {READ_CAPABILITIES}=catalogue;
+const createAdapter=(options={})=>createControlAdapter({registry:READ_CAPABILITIES,...options});
 const state={
  operator:{pid:42,loadedCode:'fingerprint',startedAt:'2026-10-06T10:00:00Z',root:'SECRET_ROOT'},
  projects:{
