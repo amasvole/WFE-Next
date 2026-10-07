@@ -39,7 +39,21 @@ function validateWorkState(project){
  }
  for(const i of w.items)for(const ref of [i.parentWorkId,i.blocker?.dependencyWorkId,...(i.relatedWorkIds||[])].filter(Boolean))if(ref===i.id||!ids.has(ref))throw Error('invalid work dependency');
 }
-function validateWorkProjects(state){let count=0,self=0;for(const p of Object.values(state.projects)){validateWorkState(p);count+=p.workState?.items.length||0;if(p.workState?.managedSystem==='WFE')self++;}if(count>1000||self>1)throw Error('work state bounds exceeded');}
+function validateWorkProjects(state){
+ const record=x=>x!==null&&typeof x==='object'&&!Array.isArray(x);
+ if(!record(state)||!record(state.projects))throw Error('invalid canonical state');
+ let count=0,self=0;
+ for(const [key,p] of Object.entries(state.projects)){
+  if(!record(p)||p.id!==key||typeof p.name!=='string'||!Array.isArray(p.runs))throw Error('invalid canonical project');
+  for(const r of p.runs){
+   if(!record(r)||typeof r.id!=='string'||typeof r.status!=='string'||(r.goal!==undefined&&typeof r.goal!=='string')||(r.steps!==undefined&&!Array.isArray(r.steps)))throw Error('invalid canonical run');
+   for(const s of r.steps||[])if(!record(s)||typeof s.label!=='string'||typeof s.status!=='string')throw Error('invalid canonical step');
+   if(r.verifier&&(!record(r.verifier)||typeof r.verifier.pass!=='boolean'))throw Error('invalid canonical verifier');
+  }
+  validateWorkState(p);count+=p.workState?.items.length||0;if(p.workState?.managedSystem==='WFE')self++;
+ }
+ if(count>1000||self>1)throw Error('work state bounds exceeded');
+}
 const authority=()=>({runner:'UNAVAILABLE',node:'UNAVAILABLE',approval:'UNAVAILABLE',approvalAuthority:'WFEKey',granted:false});
 const projectedSchema=object({projectId:id,item:itemSchema,authorities:object({runner:{const:'UNAVAILABLE'},node:{const:'UNAVAILABLE'},approval:{const:'UNAVAILABLE'},approvalAuthority:{const:'WFEKey'},granted:{const:false}})});
 function currentWork(state){validateWorkProjects(state);const items=Object.values(state.projects).sort((a,b)=>a.id.localeCompare(b.id,'en')).flatMap(p=>(p.workState?.items||[]).slice().sort((a,b)=>a.id.localeCompare(b.id,'en')).map(item=>({projectId:p.id,item:structuredClone(item),authorities:authority()})));return {schemaVersion:'wfe.current.work.v1',items,unclassifiedProjects:Object.values(state.projects).filter(p=>!p.workState).map(p=>p.id).sort(),...Object.fromEntries(STATES.map(s=>[s.toLowerCase(),items.filter(x=>x.item.state===s)]))};}

@@ -3,6 +3,23 @@ const {Kernel}=require('../src/kernel');
 const {currentWork,selfState,validateWorkProjects,STATES}=require('../src/work-state');
 const example=require('../docs/examples/wfe-self-project.json');
 const state=()=>({projects:{'wfe-self':structuredClone(example),legacy:{id:'legacy',name:'Old demo',runs:[{id:'old',status:'DONE'}]}}});
+test('missing file initializes legitimately; every corrupt existing snapshot fails without replacement',()=>{
+ const root=fs.mkdtempSync(path.join(os.tmpdir(),'wfe-load-review-'));
+ try{
+  const k=new Kernel({root,provider:{}});assert.deepEqual(k.state,{projects:{}});assert.equal(fs.existsSync(k.stateFile),false);
+  k.createProject({id:'first',name:'First'});assert.deepEqual(new Kernel({root,provider:{}}).state,k.state);
+  const legacy={projects:{legacy:state().projects.legacy},productControl:{receipt:'unchanged'}};
+  fs.writeFileSync(k.stateFile,JSON.stringify(legacy));assert.deepEqual(new Kernel({root,provider:{}}).state,legacy);
+  const invalidWork=state();delete invalidWork.projects['wfe-self'].workState.items[1].blocker;
+  const invalid=[null,[],{}, {projects:[]},{projects:null},{projects:{bad:{}}},{projects:{legacy:{...legacy.projects.legacy,runs:[{}]}}},invalidWork];
+  for(const bytes of ['{broken',...invalid.map(x=>JSON.stringify(x))]){
+   fs.writeFileSync(k.stateFile,bytes);assert.throws(()=>new Kernel({root,provider:{}}));assert.equal(fs.readFileSync(k.stateFile,'utf8'),bytes);
+  }
+  k.state={projects:[]};assert.throws(()=>k.save());assert.equal(fs.readFileSync(k.stateFile,'utf8'),JSON.stringify(invalidWork));
+  const read=fs.readFileSync;
+  try{fs.readFileSync=(file,...args)=>{if(file===k.stateFile)throw Object.assign(Error('unreadable snapshot'),{code:'EACCES'});return read(file,...args)};assert.throws(()=>new Kernel({root,provider:{}}),/unreadable snapshot/);}finally{fs.readFileSync=read;}
+ }finally{fs.rmSync(root,{recursive:true,force:true});}
+});
 test('offline staging preserves all existing canonical records and rejects overwrite',()=>{
  const {stage}=require('../scripts/stage-self-state.cjs');const old={projects:{legacy:state().projects.legacy},productControl:{receipt:'unchanged'}},before=JSON.stringify(old);
  const next=stage(old,example);assert.equal(JSON.stringify(old),before);assert.deepEqual(next.projects.legacy,old.projects.legacy);assert.deepEqual(next.productControl,old.productControl);assert.throws(()=>stage(next,example));assert.equal(selfState(next).availability,'RECORDED');
