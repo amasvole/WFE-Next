@@ -18,7 +18,7 @@ export function validate(value,schema){let check=compiled.get(schema);if(!check)
 export const INTEGRATION_CONTRACT='wfe.mcp.integration.v1';
 export function sourceIdentity(){
  const root=fileURLToPath(new URL('../../../',import.meta.url));
- const files=['src/server.js','src/project-status.js','src/kernel.js','src/product-mutation.js','src/product-contract.js','src/product-control-http.js','src/provider.js','src/plan-output.js','src/workspace-files.js','src/browser-runtime.js','src/browser-procedure.js','scripts/browser-executor.js'];
+ const files=['src/server.js','src/project-status.js','src/work-state.js','src/kernel.js','src/product-mutation.js','src/product-contract.js','src/product-control-http.js','src/provider.js','src/plan-output.js','src/workspace-files.js','src/browser-runtime.js','src/browser-procedure.js','scripts/browser-executor.js'];
  const loadedCode=createHash('sha256').update(files.map(f=>readFileSync(path.join(root,f))).join('')).digest('hex');
   const adapterLoadedCode=createHash('sha256').update(['src/control-capabilities.js','src/product-capabilities.js','src/product-contract.js','integrations/wfe-mcp/src/status-view.mjs','integrations/wfe-mcp/src/adapter.mjs','integrations/wfe-mcp/src/server.mjs'].map(f=>readFileSync(path.join(root,f))).join('')).digest('hex');
  const wfeVersion=JSON.parse(readFileSync(path.join(root,'package.json'),'utf8')).version;

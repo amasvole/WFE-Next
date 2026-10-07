@@ -90,9 +90,9 @@ test('all read-only tools use one GET snapshot at most and cannot mutate the can
  const before=JSON.stringify(state),requests=[];
  const adapter=createAdapter({fetchImpl:async(url,options)=>{requests.push([url,options.method,options.redirect]);return fetchState();}});
  for(const c of READ_CAPABILITIES){
-  const args=c.name==='wfe_run_get'?{projectId:'history',runId:'r-done'}:['wfe_project_get','wfe_workbench_get'].includes(c.name)?{projectId:'history'}:{};
+  const args=c.name==='wfe_work_item_get'?{projectId:'history',workId:'missing'}:c.name==='wfe_run_get'?{projectId:'history',runId:'r-done'}:['wfe_project_get','wfe_workbench_get'].includes(c.name)?{projectId:'history'}:{};
   const count=requests.length,result=await adapter.call(c.name,args);
-  assert.equal(result.isError,c.availability==='unavailable'?true:undefined,c.name);
+  assert.equal(result.isError,c.availability==='unavailable'||c.name==='wfe_work_item_get'?true:undefined,c.name);
   assert.ok(requests.length-count<=1);
   assert.equal(JSON.stringify(result).includes('SECRET_'),false);
  }
