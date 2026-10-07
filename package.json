@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node src/server.js",
-    "test": "node test/kernel.test.js && node test/workspace-files.test.js && node test/workspace-search.test.js && node test/plan-output.test.js && node test/project-status.test.js",
+    "test": "node test/kernel.test.js && node test/workspace-files.test.js && node test/workspace-search.test.js && node test/plan-output.test.js && node test/project-status.test.js && node --test test/work-state.test.js",
     "test:product": "node --test test/product-mutation.test.js",
     "accept:pong": "node scripts/pong-acceptance.js",
     "accept:real": "node scripts/real-generation.js",

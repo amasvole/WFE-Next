@@ -1,0 +1,56 @@
+{
+  "id": "wfe-self",
+  "name": "WFE development and operations",
+  "runs": [],
+  "metadata": {
+    "lifecycle": "ACTIVE",
+    "purpose": "USER_PROJECT",
+    "protection": "WARN_BEFORE_MUTATION",
+    "source": "Explicit operator-owned self-management record"
+  },
+  "workState": {
+    "schemaVersion": "wfe.project.work.v1",
+    "managedSystem": "WFE",
+    "acceptedMainSha": "457062712fed94b5623593683b36e8ed0c47ab5d",
+    "items": [
+      {
+        "id": "self-management",
+        "title": "Canonical self-management",
+        "purpose": "Represent WFE work in the existing canonical store",
+        "state": "ACTIVE",
+        "binding": { "repository": "amasvole/WFE-Next", "branch": "codex/self-state-authority" },
+        "nextAction": { "kind": "OPERATOR", "summary": "Review the bounded implementation and draft PR before merge and runtime adoption" }
+      },
+      {
+        "id": "adoption-example",
+        "title": "Illustrative runtime adoption dependency",
+        "purpose": "Example only; not a verified operational blocker",
+        "state": "BLOCKED",
+        "blocker": {
+          "class": "DEPENDENCY",
+          "summary": "Illustrative adoption depends on acceptance of the current slice",
+          "code": "EXAMPLE_ACCEPTANCE_PENDING",
+          "dependencyWorkId": "self-management",
+          "requiredAction": "Operator records acceptance after review",
+          "observedAt": "2026-10-07T00:00:00Z"
+        },
+        "nextAction": { "kind": "OPERATOR", "summary": "Review dependency; this example does not authorize deployment" }
+      },
+      {
+        "id": "victus-startup",
+        "title": "Victus startup and runtime convergence",
+        "purpose": "Operator-declared accepted and frozen baseline",
+        "state": "FROZEN",
+        "binding": { "repository": "amasvole/WFE-Next", "frozenSha": "457062712fed94b5623593683b36e8ed0c47ab5d", "node": "Victus" },
+        "nextAction": { "kind": "NONE" }
+      },
+      {
+        "id": "demo-example",
+        "title": "Illustrative historical demo",
+        "purpose": "Example only; no existing demo reclassified",
+        "state": "HISTORICAL",
+        "nextAction": { "kind": "NONE" }
+      }
+    ]
+  }
+}
