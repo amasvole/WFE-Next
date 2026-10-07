@@ -22,6 +22,11 @@ function Write-BootstrapLog([string]$Message) {
     [System.IO.File]::AppendAllText((Join-Path $logDir 'bootstrap.log'), $line, $Utf8NoBom)
 }
 
+function Test-WfeProcessIdentity($Process, [string]$NodePath, [string]$Entry) {
+    $command = '^\s*' + [regex]::Escape('"' + $NodePath + '"') + '\s+' + [regex]::Escape('"' + $Entry + '"') + '\s*$'
+    return $Process.ExecutablePath -eq $NodePath -and $Process.CommandLine -match $command
+}
+
 $utf8Smoke = Join-Path $Root 'runtime\Test-WFEUtf8.ps1'
 if (-not (Test-Path -LiteralPath $utf8Smoke -PathType Leaf)) { throw "UTF-8 smoke test missing: $utf8Smoke" }
 & $utf8Smoke | ForEach-Object { Write-BootstrapLog "UTF8 $_" }
@@ -93,7 +98,7 @@ try {
         $entry = Join-Path $repo $component.Entry
         $listeners = @(Get-NetTCPConnection -State Listen -ErrorAction Stop | Where-Object { $_.LocalPort -eq $component.Port })
         $existing = @(Get-CimInstance Win32_Process -Filter "Name='node.exe'" | Where-Object {
-            $_.ExecutablePath -eq $nodePath -and $_.CommandLine -match ([regex]::Escape('"' + $entry + '"') + '$')
+            Test-WfeProcessIdentity $_ $nodePath $entry
         })
         if ($listeners.Count -gt 1 -or $existing.Count -gt 1) { throw "Duplicate $($component.Name) ownership" }
         if ($listeners.Count -eq 1) {
