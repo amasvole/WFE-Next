@@ -3,6 +3,20 @@ const {Kernel}=require('../src/kernel');
 const {currentWork,selfState,validateWorkProjects,STATES}=require('../src/work-state');
 const example=require('../docs/examples/wfe-self-project.json');
 const state=()=>({projects:{'wfe-self':structuredClone(example),legacy:{id:'legacy',name:'Old demo',runs:[{id:'old',status:'DONE'}]}}});
+test('Run verifier absent/null/object contract is enforced on load and save without changing invalid bytes',()=>{
+ const root=fs.mkdtempSync(path.join(os.tmpdir(),'wfe-verifier-'));
+ try{
+  const k=new Kernel({root,provider:{}});
+  for(const fields of [{},{verifier:null},{verifier:{pass:true}},{verifier:{pass:false,failures:['failed'],at:'2026-10-07T00:00:00Z'}}]){
+   const s=state();Object.assign(s.projects.legacy.runs[0],fields);k.state=s;k.save();assert.deepEqual(new Kernel({root,provider:{}}).state,s);
+  }
+  for(const verifier of [false,0,'',[],{}, {pass:0},{pass:'true'},'invalid',1]){
+   const s=state();s.projects.legacy.runs[0].verifier=verifier;const bytes=JSON.stringify(s);fs.writeFileSync(k.stateFile,bytes);
+   assert.throws(()=>new Kernel({root,provider:{}}),/invalid canonical verifier/);assert.equal(fs.readFileSync(k.stateFile,'utf8'),bytes);
+   k.state=s;assert.throws(()=>k.save(),/invalid canonical verifier/);assert.equal(fs.readFileSync(k.stateFile,'utf8'),bytes);
+  }
+ }finally{fs.rmSync(root,{recursive:true,force:true});}
+});
 test('missing file initializes legitimately; every corrupt existing snapshot fails without replacement',()=>{
  const root=fs.mkdtempSync(path.join(os.tmpdir(),'wfe-load-review-'));
  try{

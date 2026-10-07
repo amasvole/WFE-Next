@@ -48,7 +48,7 @@ function validateWorkProjects(state){
   for(const r of p.runs){
    if(!record(r)||typeof r.id!=='string'||typeof r.status!=='string'||(r.goal!==undefined&&typeof r.goal!=='string')||(r.steps!==undefined&&!Array.isArray(r.steps)))throw Error('invalid canonical run');
    for(const s of r.steps||[])if(!record(s)||typeof s.label!=='string'||typeof s.status!=='string')throw Error('invalid canonical step');
-   if(r.verifier&&(!record(r.verifier)||typeof r.verifier.pass!=='boolean'))throw Error('invalid canonical verifier');
+   if(Object.hasOwn(r,'verifier')&&r.verifier!==null&&(!record(r.verifier)||typeof r.verifier.pass!=='boolean'))throw Error('invalid canonical verifier');
   }
   validateWorkState(p);count+=p.workState?.items.length||0;if(p.workState?.managedSystem==='WFE')self++;
  }

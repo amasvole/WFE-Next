@@ -46,7 +46,7 @@ function validateCanonicalState(state){
  for(const [key,p]of Object.entries(state.projects)){
   if(!p||p.id!==key||typeof p.name!=='string'||!Array.isArray(p.runs))throw Error('invalid canonical project');
   if(!state.projectStatus[key]||state.projectStatus[key].state!==projectStatus(p,state.active).state)throw Error('invalid canonical projection');
-  for(const r of p.runs){if(!r||typeof r.id!=='string'||typeof r.status!=='string'||(r.goal!==undefined&&typeof r.goal!=='string')||(r.steps!==undefined&&!Array.isArray(r.steps)))throw Error('invalid canonical run');for(const s of r.steps||[])if(!s||typeof s.label!=='string'||typeof s.status!=='string')throw Error('invalid canonical step');if(r.verifier&&(typeof r.verifier!=='object'||typeof r.verifier.pass!=='boolean'))throw Error('invalid canonical verifier');}
+  for(const r of p.runs){if(!r||typeof r.id!=='string'||typeof r.status!=='string'||(r.goal!==undefined&&typeof r.goal!=='string')||(r.steps!==undefined&&!Array.isArray(r.steps)))throw Error('invalid canonical run');for(const s of r.steps||[])if(!s||typeof s.label!=='string'||typeof s.status!=='string')throw Error('invalid canonical step');if(Object.hasOwn(r,'verifier')&&r.verifier!==null&&(typeof r.verifier!=='object'||Array.isArray(r.verifier)||!r.verifier||typeof r.verifier.pass!=='boolean'))throw Error('invalid canonical verifier');}
  }
  work.validateWorkProjects(state);
  return state;
