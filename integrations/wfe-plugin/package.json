@@ -1,0 +1,19 @@
+{
+  "name": "wfe-chatgpt-plugin",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Read-only MCP adapter exposing canonical WFE-Next operator status to ChatGPT.",
+  "scripts": {
+    "start": "node src/server.mjs",
+    "test": "node --test",
+    "smoke:live": "node scripts/live-smoke.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.32.0",
+    "zod": "4.6.5"
+  }
+}
