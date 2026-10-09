@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "HANDS-DISPATCH-001",
+  "repository": "amasvole/WFE-Next",
+  "authority": "github.workflow.dispatch",
+  "execution": {
+    "node": "victus",
+    "checkout": "exact-sha-detached",
+    "commands": [
+      ["npm", "test"],
+      ["npm", "run", "test:product"]
+    ],
+    "effect": "read-only"
+  },
+  "forbidden": [
+    "generic-shell",
+    "merge",
+    "deploy",
+    "working-tree-mutation"
+  ]
+}
